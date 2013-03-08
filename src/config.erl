@@ -56,13 +56,23 @@ reload()-> stop(), start().
 soft_reload()->
   gen_server:call(?MODULE, {soft_reload}, infinity).  
 
-init([]) ->
+init([]) ->  
+  %io:format("~p",[init:get_argument(program_mode)]),
   case init:get_argument(program_mode) of 
     {ok, [[Mode]]}->
-      case Mode of
-        "slave"->
-          error_logger:info_msg("Loading slave mode config file...~n"),
-          CFG_FILE = "slave.conf";
+      case is_list(Mode) of 
+        true->
+          error_logger:info_msg("Loading "++Mode++" mode config file...~n"),
+          CFG_FILE = Mode ++ ".conf";
+        _Else->
+          error_logger:info_msg("Loading default mode config file...~n"),
+          CFG_FILE = "base.conf"
+      end;
+    {ok, [_|[Mode]]}->
+      case is_list(Mode) of 
+        true->
+          error_logger:info_msg("Loading "++Mode++" mode config file...~n"),
+          CFG_FILE = Mode ++ ".conf";
         _Else->
           error_logger:info_msg("Loading default mode config file...~n"),
           CFG_FILE = "base.conf"
@@ -100,12 +110,21 @@ handle_call({get, Key}, _From, State) ->
 handle_call({soft_reload}, _From, State) ->
   case init:get_argument(program_mode) of 
     {ok, [[Mode]]}->
-      case Mode of
-        "slave"->
-          error_logger:info_msg("Loading slave mode config file...~n"),
-          CFG_FILE = "slave.conf";
+      case is_list(Mode) of 
+        true->
+          error_logger:info_msg("Loading "++Mode++" mode config file...~n"),
+          CFG_FILE = Mode ++ ".conf";
         _Else->
-          error_logger:info_msg("Loading ~s mode config file...~n", [Mode]),
+          error_logger:info_msg("Loading default mode config file...~n"),
+          CFG_FILE = "base.conf"
+      end;
+    {ok, [_|[Mode]]}->
+      case is_list(Mode) of 
+        true->
+          error_logger:info_msg("Loading "++Mode++" mode config file...~n"),
+          CFG_FILE = Mode ++ ".conf";
+        _Else->
+          error_logger:info_msg("Loading default mode config file...~n"),
           CFG_FILE = "base.conf"
       end;
     _Else->

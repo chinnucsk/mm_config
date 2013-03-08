@@ -6,12 +6,7 @@
   {applications, [
                   kernel,
                   stdlib
-                 ]},
-  {modules, [
-    config,
-    mm_config,
-    mm_config_app,
-    mm_config_sup
-  ]},
+                 ]},  
+  {mod, { mm_config_app, []}},
   {env, []}
  ]}.
